@@ -97,6 +97,14 @@ const renderCameraFrame = () => {
 
     cameraCtx.imageSmoothingEnabled = false;
 
+    // Flip horizontally for back camera
+    const shouldFlip = facingMode === 'environment';
+    if (shouldFlip) {
+        cameraCtx.save();
+        cameraCtx.scale(-1, 1);
+        cameraCtx.translate(-w, 0);
+    }
+
     if (pixelationFactor <= 1) {
         cameraCtx.drawImage(video, 0, 0, w, h);
     } else {
@@ -104,6 +112,10 @@ const renderCameraFrame = () => {
         const scaledH = Math.max(1, Math.floor(h / pixelationFactor));
         cameraCtx.drawImage(video, 0, 0, scaledW, scaledH);
         cameraCtx.drawImage(cameraCanvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
+    }
+
+    if (shouldFlip) {
+        cameraCtx.restore();
     }
 
     animationId = requestAnimationFrame(renderCameraFrame);
