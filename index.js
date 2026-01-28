@@ -12,10 +12,14 @@ const cameraBtn = document.getElementById('cameraBtn');
 const imageSection = document.getElementById('imageSection');
 const cameraSection = document.getElementById('cameraSection');
 const uploadContainer = document.getElementById('uploadContainer');
+const downloadImageBtn = document.getElementById('downloadImageBtn');
+const screenshotBtn = document.getElementById('screenshotBtn');
+const switchCameraBtn = document.getElementById('switchCameraBtn');
 
 let originalImage = null;
 let animationId = null;
 let cameraStream = null;
+let facingMode = 'user';
 
 // Cette fonction s'exécute une fois que le fichier est chargé en mémoire
 upload.addEventListener("change", function (e) {
@@ -111,7 +115,11 @@ const startCam = () => {
         return;
     }
 
-    navigator.mediaDevices.getUserMedia({ video: true })
+    const constraints = {
+        video: { facingMode: facingMode }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
         .then(stream => {
             cameraStream = stream;
             video.srcObject = stream;
@@ -162,4 +170,32 @@ window.addEventListener('resize', () => {
     if (!cameraSection.classList.contains('hidden') && video.srcObject) {
         resizeCameraCanvas();
     }
-});        
+});
+
+// Download pixelated image
+downloadImageBtn.addEventListener('click', () => {
+    if (!originalImage) {
+        alert('Please choose an image first!');
+        return;
+    }
+    const link = document.createElement('a');
+    link.download = 'pixelated-image.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+});
+
+// Take screenshot from camera
+screenshotBtn.addEventListener('click', () => {
+    if (!video.srcObject) return;
+    const link = document.createElement('a');
+    link.download = 'camera-screenshot.png';
+    link.href = cameraCanvas.toDataURL('image/png');
+    link.click();
+});
+
+// Switch camera (front/back)
+switchCameraBtn.addEventListener('click', () => {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    stopCam();
+    startCam();
+});

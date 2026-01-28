@@ -115,6 +115,39 @@ p {
   border-color: #555;
 }
 
+.download-btn {
+  margin-left: 10px;
+}
+
+.camera-controls {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 50;
+}
+
+.camera-action-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.camera-action-btn:hover {
+  background: #333;
+  transform: scale(1.1);
+}
+
 .slider-container {
   display: flex;
   align-items: center;
@@ -260,5 +293,25 @@ input[type="range"]::-moz-range-thumb {
 
   #canvas {
     max-height: calc(100vh - 140px);
+  }
+
+  .upload-container {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .download-btn {
+    margin-left: 0;
+  }
+
+  .camera-controls {
+    bottom: 130px;
+    gap: 12px;
+  }
+
+  .camera-action-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
   }
 }

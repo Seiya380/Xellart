@@ -18,6 +18,10 @@
           <video id="video" autoplay playsinline style="display:none;"></video>
           <canvas id="cameraCanvas"></canvas>
         </div>
+        <div class="camera-controls">
+          <button id="screenshotBtn" class="camera-action-btn" title="Take Screenshot">📷</button>
+          <button id="switchCameraBtn" class="camera-action-btn" title="Switch Camera">🔄</button>
+        </div>
       </section>
     </div>
     <div class="controls-overlay">
@@ -40,6 +44,7 @@
       <div id="uploadContainer" class="upload-container">
         <label for="upload" class="upload-btn">Choose Image</label>
         <input id="upload" type="file" accept="image/*" />
+        <button id="downloadImageBtn" class="upload-btn download-btn">Download</button>
       </div>
     </div>
     <script src="./index.js"></script>
