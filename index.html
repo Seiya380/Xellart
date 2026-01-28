@@ -8,9 +8,13 @@
   </head>
   <body>
     <div class="container">
-      <h1>Pixelate an Image</h1>
-      <p>Upload an image</p>
-      <input id="upload" type="file" accept="image/*" />
+      <h1>Pixelate</h1>
+
+      <div class="mode-buttons">
+        <button id="imageBtn" class="mode-btn active">Image</button>
+        <button id="cameraBtn" class="mode-btn">Camera</button>
+      </div>
+
       <div class="slider-container">
         <span>Pixelation: <span id="pixelValue">1</span></span>
         <input
@@ -23,31 +27,22 @@
           id="pixelationRange"
         />
       </div>
-      <div class="card-body">
-            <div class="booth">
-                <video id="video" width="400" height="300" autoplay style="display:none;"></video>
-                <canvas id="cameraCanvas" width="400" height="300"></canvas>
-            </div>
 
-            <div class="text-right">
-                <button class="btn btn-danger" onClick="stopCam()">Stop Cam</button>
-                <button class="btn btn-success" onClick="startCam()">Start Cam</button>
-                        </div>
-      <div class="preview">
-        <canvas id="canvas"></canvas>
-      </div>
+      <section id="imageSection" class="section">
+        <p>Upload an image</p>
+        <input id="upload" type="file" accept="image/*" />
+        <div class="preview">
+          <canvas id="canvas"></canvas>
+        </div>
+      </section>
+
+      <section id="cameraSection" class="section hidden">
+        <div class="booth">
+          <video id="video" autoplay playsinline style="display:none;"></video>
+          <canvas id="cameraCanvas"></canvas>
+        </div>
+      </section>
     </div>
     <script src="./index.js"></script>
   </body>
 </html>
-
-// pwa 
-
-// user friendly 
-
-// meilleur UI
-
-// deplacer dans un service worker
-
-// voir le service worker
-

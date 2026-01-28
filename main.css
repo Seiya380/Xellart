@@ -20,13 +20,49 @@ body {
 
 h1 {
   font-size: 2rem;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
 p {
   color: #300e47;
   margin-bottom: 20px;
+}
+
+.mode-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mode-btn {
+  padding: 12px 32px;
+  font-size: 1rem;
+  border: 2px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  background: transparent;
+  color: #000;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.mode-btn.active {
+  background: #333;
+  color: #fff;
+}
+
+.section {
+  width: 100%;
+}
+
+.section.hidden {
+  display: none;
 }
 
 input[type="file"] {
@@ -82,20 +118,19 @@ input[type="range"]::-moz-range-thumb {
   border: none;
 }
 
-.card-body {
-  margin-bottom: 20px;
-}
-
 .booth {
   display: flex;
   justify-content: center;
-  margin-bottom: 15px;
+  align-items: center;
+  width: 100%;
 }
 
 #cameraCanvas {
+  width: 100%;
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+  background: #0f0f1a;
 }
 
 .text-right {
@@ -115,28 +150,6 @@ input[type="range"]::-moz-range-thumb {
   font-weight: 600;
   transition: transform 0.2s, opacity 0.2s;
   min-width: 120px;
-}
-
-.btn:active {
-  transform: scale(0.95);
-}
-
-.btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #c82333;
-}
-
-.btn-success {
-  background: #28a745;
-  color: white;
-}
-
-.btn-success:hover {
-  background: #218838;
 }
 
 .preview {
@@ -164,12 +177,22 @@ input[type="range"]::-moz-range-thumb {
 
   h1 {
     font-size: 1.3rem;
-    margin-bottom: 8px;
+    margin-bottom: 15px;
   }
 
   p {
     font-size: 0.9rem;
     margin-bottom: 15px;
+  }
+
+  .mode-buttons {
+    gap: 8px;
+  }
+
+  .mode-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    flex: 1;
   }
 
   input[type="file"] {

@@ -7,8 +7,14 @@ const video = document.getElementById('video');
 const cameraCanvas = document.getElementById('cameraCanvas');
 const cameraCtx = cameraCanvas.getContext('2d');
 
-// Variable globale pour stocker l'objet Image source et y accéder partout
+const imageBtn = document.getElementById('imageBtn');
+const cameraBtn = document.getElementById('cameraBtn');
+const imageSection = document.getElementById('imageSection');
+const cameraSection = document.getElementById('cameraSection');
+
 let originalImage = null;
+let animationId = null;
+let cameraStream = null;
 
 // Cette fonction s'exécute une fois que le fichier est chargé en mémoire
 upload.addEventListener("change", function (e) {
@@ -60,59 +66,98 @@ function pixelateImage(pixelationFactor) {
   ctx.drawImage(canvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
 }
 
-const stopCam = () => {
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-            const stream = video.srcObject;
-            if (stream) {
-                const tracks = stream.getTracks();
-                tracks.forEach(track => track.stop());
-                video.srcObject = null;
-            }
-            cameraCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
-        };
+const resizeCameraCanvas = () => {
+    const container = cameraSection.querySelector('.booth');
+    const aspectRatio = video.videoWidth / video.videoHeight || 4/3;
+    const maxWidth = container.clientWidth || window.innerWidth - 40;
+    const maxHeight = window.innerHeight * 0.7;
 
-        const renderCameraFrame = () => {
-            if (!video.srcObject) return;
+    let width = maxWidth;
+    let height = width / aspectRatio;
 
-            const pixelationFactor = parseInt(pixelationRange.value);
-            const w = cameraCanvas.width;
-            const h = cameraCanvas.height;
+    if (height > maxHeight) {
+        height = maxHeight;
+        width = height * aspectRatio;
+    }
 
-            cameraCtx.imageSmoothingEnabled = false;
+    cameraCanvas.width = Math.floor(width);
+    cameraCanvas.height = Math.floor(height);
+};
 
-            if (pixelationFactor <= 1) {
-                cameraCtx.drawImage(video, 0, 0, w, h);
-            } else {
-                const scaledW = Math.max(1, Math.floor(w / pixelationFactor));
-                const scaledH = Math.max(1, Math.floor(h / pixelationFactor));
+const renderCameraFrame = () => {
+    if (!video.srcObject) return;
 
-                cameraCtx.drawImage(video, 0, 0, scaledW, scaledH);
-                cameraCtx.drawImage(cameraCanvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
-            }
+    const pixelationFactor = parseInt(pixelationRange.value);
+    const w = cameraCanvas.width;
+    const h = cameraCanvas.height;
 
-            animationId = requestAnimationFrame(renderCameraFrame);
-        };
+    cameraCtx.imageSmoothingEnabled = false;
 
-        const startCam = () => {
-            if (navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => {
-                        video.srcObject = stream;
-                        video.onloadedmetadata = () => {
-                            renderCameraFrame();
-                        };
-                    })
-                    .catch(error => {
-                        console.error("Something went wrong!", error);
-                    });
-            } else {
-                console.log("getUserMedia not supported on your browser!");
-            }
-        };
+    if (pixelationFactor <= 1) {
+        cameraCtx.drawImage(video, 0, 0, w, h);
+    } else {
+        const scaledW = Math.max(1, Math.floor(w / pixelationFactor));
+        const scaledH = Math.max(1, Math.floor(h / pixelationFactor));
+        cameraCtx.drawImage(video, 0, 0, scaledW, scaledH);
+        cameraCtx.drawImage(cameraCanvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            startCam();
+    animationId = requestAnimationFrame(renderCameraFrame);
+};
+
+const startCam = () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.log("getUserMedia not supported on your browser!");
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            cameraStream = stream;
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                resizeCameraCanvas();
+                renderCameraFrame();
+            };
+        })
+        .catch(error => {
+            console.error("Something went wrong!", error);
         });
+};
+
+const stopCam = () => {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        video.srcObject = null;
+    }
+};
+
+const switchToImage = () => {
+    imageBtn.classList.add('active');
+    cameraBtn.classList.remove('active');
+    imageSection.classList.remove('hidden');
+    cameraSection.classList.add('hidden');
+    stopCam();
+};
+
+const switchToCamera = () => {
+    cameraBtn.classList.add('active');
+    imageBtn.classList.remove('active');
+    cameraSection.classList.remove('hidden');
+    imageSection.classList.add('hidden');
+    startCam();
+};
+
+imageBtn.addEventListener('click', switchToImage);
+cameraBtn.addEventListener('click', switchToCamera);
+
+window.addEventListener('resize', () => {
+    if (!cameraSection.classList.contains('hidden') && video.srcObject) {
+        resizeCameraCanvas();
+    }
+});        
