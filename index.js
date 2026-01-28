@@ -70,6 +70,7 @@ const renderCameraFrame = () => {
 
 const startCam = () => {
   if (!navigator.mediaDevices?.getUserMedia) return;
+  cameraCanvas.classList.toggle('mirrored', facingMode === 'user');
   navigator.mediaDevices.getUserMedia({ video: { facingMode } })
     .then(stream => {
       cameraStream = stream;
