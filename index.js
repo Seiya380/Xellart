@@ -1,213 +1,123 @@
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const upload = document.getElementById("upload");
-const pixelationRange = document.getElementById("pixelationRange");
-const pixelValue = document.getElementById("pixelValue");
-const video = document.getElementById('video');
-const cameraCanvas = document.getElementById('cameraCanvas');
-const cameraCtx = cameraCanvas.getContext('2d');
+const $ = id => document.getElementById(id);
 
-const imageBtn = document.getElementById('imageBtn');
-const cameraBtn = document.getElementById('cameraBtn');
-const imageSection = document.getElementById('imageSection');
-const cameraSection = document.getElementById('cameraSection');
-const uploadContainer = document.getElementById('uploadContainer');
-const downloadImageBtn = document.getElementById('downloadImageBtn');
-const screenshotBtn = document.getElementById('screenshotBtn');
-const switchCameraBtn = document.getElementById('switchCameraBtn');
+const canvas = $("canvas"), ctx = canvas.getContext("2d");
+const cameraCanvas = $('cameraCanvas'), cameraCtx = cameraCanvas.getContext('2d');
+const video = $('video'), upload = $("upload");
+const pixelationRange = $("pixelationRange"), pixelValue = $("pixelValue");
+const imageBtn = $('imageBtn'), cameraBtn = $('cameraBtn');
+const imageSection = $('imageSection'), cameraSection = $('cameraSection');
+const uploadContainer = $('uploadContainer');
 
-let originalImage = null;
-let animationId = null;
-let cameraStream = null;
-let facingMode = 'user';
+let originalImage = null, animationId = null, cameraStream = null, facingMode = 'user';
 
-// Cette fonction s'exécute une fois que le fichier est chargé en mémoire
-upload.addEventListener("change", function (e) {
+upload.addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
-  //it will read the metadata 
-  reader.onload = function (event) {
+  reader.onload = event => {
     const img = new Image();
-    img.onload = function () {
+    img.onload = () => {
       originalImage = img;
-      // Premier rendu de pixelisation dès l'upload
       pixelateImage(parseInt(pixelationRange.value));
     };
     img.src = event.target.result;
   };
   reader.readAsDataURL(file);
 });
-// Écouteur sur le slider pour mettre à jour l'effet en temps réel
-pixelationRange.addEventListener("input", function () {
+
+pixelationRange.addEventListener("input", function() {
   pixelValue.textContent = this.value;
-  if (originalImage) {
-    pixelateImage(parseInt(this.value));
-  }
+  if (originalImage) pixelateImage(parseInt(this.value));
 });
-//this is the function for the pixel
-function pixelateImage(pixelationFactor) {
+
+function pixelateImage(factor) {
   if (!originalImage) return;
-
-  const w = originalImage.width;
-  const h = originalImage.height;
-
+  const w = originalImage.width, h = originalImage.height;
   canvas.width = w;
   canvas.height = h;
-
-  if (pixelationFactor <= 1) {
-    ctx.drawImage(originalImage, 0, 0, w, h);
-    return;
-  }
-
-  const scaledW = Math.max(1, Math.floor(w / pixelationFactor));
-  const scaledH = Math.max(1, Math.floor(h / pixelationFactor));
-
+  if (factor <= 1) return ctx.drawImage(originalImage, 0, 0, w, h);
+  const scaledW = Math.max(1, Math.floor(w / factor));
+  const scaledH = Math.max(1, Math.floor(h / factor));
   ctx.imageSmoothingEnabled = false;
-
   ctx.drawImage(originalImage, 0, 0, scaledW, scaledH);
-
   ctx.drawImage(canvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
 }
 
 const resizeCameraCanvas = () => {
-    const aspectRatio = video.videoWidth / video.videoHeight || 4/3;
-    const maxWidth = window.innerWidth;
-    const maxHeight = window.innerHeight - 120;
-
-    let width = maxWidth;
-    let height = width / aspectRatio;
-
-    if (height > maxHeight) {
-        height = maxHeight;
-        width = height * aspectRatio;
-    }
-
-    cameraCanvas.width = Math.floor(width);
-    cameraCanvas.height = Math.floor(height);
+  const aspectRatio = video.videoWidth / video.videoHeight || 4/3;
+  const maxW = window.innerWidth, maxH = window.innerHeight - 120;
+  let w = maxW, h = w / aspectRatio;
+  if (h > maxH) { h = maxH; w = h * aspectRatio; }
+  cameraCanvas.width = Math.floor(w);
+  cameraCanvas.height = Math.floor(h);
 };
 
 const renderCameraFrame = () => {
-    if (!video.srcObject) return;
-
-    const pixelationFactor = parseInt(pixelationRange.value);
-    const w = cameraCanvas.width;
-    const h = cameraCanvas.height;
-
-    cameraCtx.imageSmoothingEnabled = false;
-
-    // Flip horizontally for back camera
-    const shouldFlip = facingMode === 'environment';
-    if (shouldFlip) {
-        cameraCtx.save();
-        cameraCtx.scale(-1, 1);
-        cameraCtx.translate(-w, 0);
-    }
-
-    if (pixelationFactor <= 1) {
-        cameraCtx.drawImage(video, 0, 0, w, h);
-    } else {
-        const scaledW = Math.max(1, Math.floor(w / pixelationFactor));
-        const scaledH = Math.max(1, Math.floor(h / pixelationFactor));
-        cameraCtx.drawImage(video, 0, 0, scaledW, scaledH);
-        cameraCtx.drawImage(cameraCanvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
-    }
-
-    if (shouldFlip) {
-        cameraCtx.restore();
-    }
-
-    animationId = requestAnimationFrame(renderCameraFrame);
+  if (!video.srcObject) return;
+  const factor = parseInt(pixelationRange.value);
+  const w = cameraCanvas.width, h = cameraCanvas.height;
+  cameraCtx.imageSmoothingEnabled = false;
+  if (factor <= 1) {
+    cameraCtx.drawImage(video, 0, 0, w, h);
+  } else {
+    const scaledW = Math.max(1, Math.floor(w / factor));
+    const scaledH = Math.max(1, Math.floor(h / factor));
+    cameraCtx.drawImage(video, 0, 0, scaledW, scaledH);
+    cameraCtx.drawImage(cameraCanvas, 0, 0, scaledW, scaledH, 0, 0, w, h);
+  }
+  animationId = requestAnimationFrame(renderCameraFrame);
 };
 
 const startCam = () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.log("getUserMedia not supported on your browser!");
-        return;
-    }
-
-    const constraints = {
-        video: { facingMode: facingMode }
-    };
-
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-            cameraStream = stream;
-            video.srcObject = stream;
-            video.onloadedmetadata = () => {
-                resizeCameraCanvas();
-                renderCameraFrame();
-            };
-        })
-        .catch(error => {
-            console.error("Something went wrong!", error);
-        });
+  if (!navigator.mediaDevices?.getUserMedia) return;
+  navigator.mediaDevices.getUserMedia({ video: { facingMode } })
+    .then(stream => {
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.onloadedmetadata = () => { resizeCameraCanvas(); renderCameraFrame(); };
+    })
+    .catch(err => console.error("Camera error:", err));
 };
 
 const stopCam = () => {
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-    }
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-        video.srcObject = null;
-    }
+  if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+    video.srcObject = null;
+  }
 };
 
-const switchToImage = () => {
-    imageBtn.classList.add('active');
-    cameraBtn.classList.remove('active');
-    imageSection.classList.remove('hidden');
-    cameraSection.classList.add('hidden');
-    uploadContainer.classList.remove('hidden');
-    stopCam();
+const switchMode = (isCamera) => {
+  imageBtn.classList.toggle('active', !isCamera);
+  cameraBtn.classList.toggle('active', isCamera);
+  imageSection.classList.toggle('hidden', isCamera);
+  cameraSection.classList.toggle('hidden', !isCamera);
+  uploadContainer.classList.toggle('hidden', isCamera);
+  isCamera ? startCam() : stopCam();
 };
 
-const switchToCamera = () => {
-    cameraBtn.classList.add('active');
-    imageBtn.classList.remove('active');
-    cameraSection.classList.remove('hidden');
-    imageSection.classList.add('hidden');
-    uploadContainer.classList.add('hidden');
-    startCam();
+const download = (canvasEl, filename) => {
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvasEl.toDataURL('image/png');
+  link.click();
 };
 
-imageBtn.addEventListener('click', switchToImage);
-cameraBtn.addEventListener('click', switchToCamera);
-
+imageBtn.addEventListener('click', () => switchMode(false));
+cameraBtn.addEventListener('click', () => switchMode(true));
 window.addEventListener('resize', () => {
-    if (!cameraSection.classList.contains('hidden') && video.srcObject) {
-        resizeCameraCanvas();
-    }
+  if (!cameraSection.classList.contains('hidden') && video.srcObject) resizeCameraCanvas();
 });
-
-// Download pixelated image
-downloadImageBtn.addEventListener('click', () => {
-    if (!originalImage) {
-        alert('Please choose an image first!');
-        return;
-    }
-    const link = document.createElement('a');
-    link.download = 'pixelated-image.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+$('downloadImageBtn').addEventListener('click', () => {
+  if (!originalImage) return alert('Please choose an image first!');
+  download(canvas, 'pixelated-image.png');
 });
-
-// Take screenshot from camera
-screenshotBtn.addEventListener('click', () => {
-    if (!video.srcObject) return;
-    const link = document.createElement('a');
-    link.download = 'camera-screenshot.png';
-    link.href = cameraCanvas.toDataURL('image/png');
-    link.click();
+$('screenshotBtn').addEventListener('click', () => {
+  if (video.srcObject) download(cameraCanvas, 'camera-screenshot.png');
 });
-
-// Switch camera (front/back)
-switchCameraBtn.addEventListener('click', () => {
-    facingMode = facingMode === 'user' ? 'environment' : 'user';
-    stopCam();
-    startCam();
+$('switchCameraBtn').addEventListener('click', () => {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  stopCam();
+  startCam();
 });
