@@ -8,9 +8,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>Pixelate</h1>
       <section id="imageSection" class="section">
-        <p>Upload an image</p>
         <div class="preview">
           <canvas id="canvas"></canvas>
         </div>
@@ -22,7 +20,8 @@
         </div>
       </section>
     </div>
-    <div class="mode-buttons">
+    <div class="controls-overlay">
+      <div class="mode-buttons">
         <button id="imageBtn" class="mode-btn active">Image</button>
         <button id="cameraBtn" class="mode-btn">Camera</button>
       </div>
@@ -38,10 +37,11 @@
           id="pixelationRange"
         />
       </div>
-      <div class="upload-container">
+      <div id="uploadContainer" class="upload-container">
         <label for="upload" class="upload-btn">Choose Image</label>
         <input id="upload" type="file" accept="image/*" />
       </div>
+    </div>
     <script src="./index.js"></script>
   </body>
 </html>

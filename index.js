@@ -11,6 +11,7 @@ const imageBtn = document.getElementById('imageBtn');
 const cameraBtn = document.getElementById('cameraBtn');
 const imageSection = document.getElementById('imageSection');
 const cameraSection = document.getElementById('cameraSection');
+const uploadContainer = document.getElementById('uploadContainer');
 
 let originalImage = null;
 let animationId = null;
@@ -67,10 +68,9 @@ function pixelateImage(pixelationFactor) {
 }
 
 const resizeCameraCanvas = () => {
-    const container = cameraSection.querySelector('.booth');
     const aspectRatio = video.videoWidth / video.videoHeight || 4/3;
-    const maxWidth = container.clientWidth || window.innerWidth - 40;
-    const maxHeight = window.innerHeight * 0.7;
+    const maxWidth = window.innerWidth;
+    const maxHeight = window.innerHeight - 120;
 
     let width = maxWidth;
     let height = width / aspectRatio;
@@ -142,6 +142,7 @@ const switchToImage = () => {
     cameraBtn.classList.remove('active');
     imageSection.classList.remove('hidden');
     cameraSection.classList.add('hidden');
+    uploadContainer.classList.remove('hidden');
     stopCam();
 };
 
@@ -150,6 +151,7 @@ const switchToCamera = () => {
     imageBtn.classList.remove('active');
     cameraSection.classList.remove('hidden');
     imageSection.classList.add('hidden');
+    uploadContainer.classList.add('hidden');
     startCam();
 };
 
